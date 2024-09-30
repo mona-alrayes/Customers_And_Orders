@@ -8,7 +8,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Services\OrderService;
 
-class OrdersController extends Controller
+class OrderController extends Controller
 {
     protected OrderService $OrderService;
 
@@ -96,10 +96,13 @@ class OrdersController extends Controller
         }
     }
 
-    public function customerOrders(string id): \Illuminate\Http\JsonResponse
+    /**
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function customerOrders(string $id): \Illuminate\Http\JsonResponse
     {
-        $customer=Customer::findOrFail($id);
-        $orders= $customer->orders()->paginate(10);
+        $orders = Customer::findOrFail($id)->orders()->paginate(10);
         return self::success($orders , 'orders retrieved successfully');
     }
 }
