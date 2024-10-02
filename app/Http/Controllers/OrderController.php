@@ -23,7 +23,7 @@ class OrderController extends Controller
     public function index(): \Illuminate\Http\JsonResponse
     {
       $orders = $this->OrderService->getOrders();
-      return self::success($orders , 'orders retrieved successfully');
+      return self::paginated($orders , 'orders retrieved successfully',200);
     }
 
     /**
@@ -65,35 +65,31 @@ class OrderController extends Controller
     /**
      * @return \Illuminate\Http\JsonResponse
      */
-    public function showDeletedOrders(): \Illuminate\Http\JsonResponse
+    public function showDeleted(): \Illuminate\Http\JsonResponse
     {
-       $deletedOrders = Order::withTrashed()->get();
+       $deletedOrders = Order::onlyTrashed()->get();
        return self::success($deletedOrders , 'Trashed orders retrieved successfully');
     }
 
     /**
-     * @param Order $order
+     * @param string $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function restoreOrder(Order $order): \Illuminate\Http\JsonResponse
+    public function restoreDeleted(string $id): \Illuminate\Http\JsonResponse
     {
+        $order=Order::onlyTrashed()->findOrFail($id);
         $order->restore();
         return self::success($order , 'Order restored successfully');
     }
 
     /**
-     * @param Order $order
+     * @param string $id
      * @return \Illuminate\Http\JsonResponse
      */
-    function forceDeleteOrder(Order $order): \Illuminate\Http\JsonResponse
+    function forceDeleted(string $id): \Illuminate\Http\JsonResponse
     {
-        // Checking if the order is trashed
-        if ($order->trashed()) {
-            $order->forceDelete();
-            return self::success(null, 'Order permanently deleted successfully.');
-        } else {
-            return self::error(null, 'Order is not in the trash!');
-        }
+       $order=Order::onlyTrashed()->findOrFail($id)->forceDelete();
+       return self::success(null , 'Order deleted successfully');
     }
 
     /**
@@ -103,6 +99,6 @@ class OrderController extends Controller
     public function customerOrders(string $id): \Illuminate\Http\JsonResponse
     {
         $orders = Customer::findOrFail($id)->orders()->paginate(10);
-        return self::success($orders , 'orders retrieved successfully');
+        return self::paginated($orders , 'orders retrieved successfully', 200);
     }
 }

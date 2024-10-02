@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('price');
             $table->integer('quantity');
             $table->boolean('status')->default(false);  // pending = false , completed = true
-            $table->datetimes('order_date');
+            $table->datetime('order_date');
             $table->softDeletes();
             $table->timestamps();
         });

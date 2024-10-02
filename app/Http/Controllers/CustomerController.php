@@ -26,14 +26,14 @@ class CustomerController extends Controller
     public function index(Request $request): JsonResponse
     {
      $customers = $this->CustomerService->getCustomers($request);
-     return self::success($customers,'Customers retrieved successfully');
+     return self::paginated($customers,'Customers retrieved successfully',200);
     }
 
     /**
      * Store a newly created resource in storage.
      * @throws \Exception
      */
-    public function store(StoreCustomerRequest $request)
+    public function store(StoreCustomerRequest $request): JsonResponse
     {
         $customer = $this->CustomerService->storeCustomer($request->validated());
         return self::success($customer,'Customer created successfully', 201);
@@ -76,22 +76,24 @@ class CustomerController extends Controller
     }
 
     /**
-     * @param Customer $customer
+     * @param string $id
      * @return JsonResponse
      */
-    public function restoreDeleted(Customer $customer): JsonResponse
+    public function restoreDeleted(string $id): JsonResponse
     {
+        $customer = Customer::onlyTrashed()->findOrFail($id);
         $customer->restore();
-        return self::success(null,'Customer restored successfully');
+        return self::success($customer,'Customer restored successfully');
     }
 
     /**
-     * @param Customer $customer
+     * @param string $id
      * @return JsonResponse
      */
-    public function forceDeleted(Customer $customer): JsonResponse
+    public function forceDeleted(string $id): JsonResponse
     {
-        $customer->forceDelete();
+        $customer = Customer::onlyTrashed()->findOrFail($id)->forceDelete();
+//        $customer->forceDelete();
         return self::success(null,'Customer force deleted successfully');
     }
 }

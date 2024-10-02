@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    use HasFactory , softDeletes;
+    use HasFactory , SoftDeletes;
 
     protected $fillable = [
         'customer_id',
@@ -22,6 +22,24 @@ class Order extends Model
         'status' => 'boolean',
         'order_date' => 'datetime',
     ];
+
+    public function getStatusAttribute(string $value): string
+    {
+      if ($value === '0') {
+          return 'pending';
+      }
+      if ($value === '1') {
+          return 'completed';
+      }
+    }
+    public function setStatusAttribute(string $value): void{
+        if($value === 'pending'){
+            $this->attributes['status'] = '0';
+        }
+        elseif($value === 'completed') {
+            $this->attributes['status'] = '1';
+        }
+    }
     public function customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
      return $this->belongsTo(Customer::class);

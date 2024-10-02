@@ -23,7 +23,7 @@ class CustomerServiceRequest extends FormRequest
     {
         $rules = [
             'name' => ['string', 'min:3', 'max:255'],
-            'email' => ['string', 'email', 'unique:customer,email,' . $this->route('customer')],
+            'email' => ['string', 'email', 'unique:customers,email,' . $this->route('customer')],
             'phone' => ['required', 'string', 'regex:/^\+?[0-9\s]+$/'], // Regex allows numbers, spaces, and optional +
         ];
 

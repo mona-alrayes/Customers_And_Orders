@@ -8,30 +8,23 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class OrderServiceRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Common validation rules.
-     */
     public function rules(): array
     {
         $rules = [
-            'customer_id' => 'required|exists:customers,id',
-            'product_name' => 'required|string',
-            'quantity' => 'required|integer',
-            'price' => 'required|integer',
-            'status' => 'required|boolean', //0= pending , 1=competed
-            'order_date' => 'required|date',
+            'customer_id' => ['required', 'exists:customers,id'],
+            'product_name' => ['required', 'string'],
+            'quantity' => ['required', 'integer'],
+            'price' => ['required', 'integer'],
+            'status' => ['required', 'in:pending,completed'],
+            'order_date' => ['required', 'date_format:d-m-Y'],
         ];
 
         if ($this->isMethod('post')) {
-            // Required for store request
             $rules['customer_id'][] = 'required';
             $rules['product_name'][] = 'required';
             $rules['quantity'][] = 'required';
@@ -39,7 +32,6 @@ class OrderServiceRequest extends FormRequest
             $rules['status'][] = 'required';
             $rules['order_date'][] = 'required';
         } else if ($this->isMethod('put')) {
-            // Allow optional fields for update request
             $rules['customer_id'][] = 'sometimes';
             $rules['product_name'][] = 'sometimes';
             $rules['quantity'][] = 'sometimes';
@@ -51,21 +43,18 @@ class OrderServiceRequest extends FormRequest
         return $rules;
     }
 
-    /**
-     * Custom error messages.
-     */
     public function messages(): array
     {
         return [
             'required' => 'حقل :attribute مطلوب',
             'string' => 'حقل :attribute يجب أن يكون نصًا وليس أي نوع آخر',
-          ,
+            'date_format' => 'حقل :attribute يجب أن يكون بتنسيق التاريخ d-m-y',
+            'in' => 'الحالة يجب أن تكون إما "pending" أو "completed"',
+            'exists' => 'معرف الزبون غير موجود',
+            'integer' => 'حقل :attribute يجب أن يكون عددًا صحيحًا',
         ];
     }
 
-    /**
-     * Custom attribute names for error messages.
-     */
     public function attributes(): array
     {
         return [
@@ -78,9 +67,6 @@ class OrderServiceRequest extends FormRequest
         ];
     }
 
-    /**
-     * Prepare data before validation.
-     */
     protected function prepareForValidation(): void
     {
         if ($this->input('name') !== null) {
@@ -90,12 +76,6 @@ class OrderServiceRequest extends FormRequest
         }
     }
 
-    /**
-     * Handle a failed validation attempt.
-     *
-     * @param Validator $validator
-     * @throws HttpResponseException
-     */
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
