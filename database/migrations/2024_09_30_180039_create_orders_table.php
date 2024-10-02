@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained();
             $table->string('product_name');
-            $table->string('price');
-            $table->string('quantity');
+            $table->integer('price');
+            $table->integer('quantity');
             $table->boolean('status')->default(false);  // pending = false , completed = true
             $table->datetimes('order_date');
             $table->softDeletes();
